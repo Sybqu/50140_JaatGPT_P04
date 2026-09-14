@@ -1,0 +1,88 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "Ripple Risk home" [ref=e5] [cursor=pointer]:
+      - /url: "#top"
+      - generic [ref=e6]: R
+      - generic [ref=e7]: RIPPLERISK
+    - generic [ref=e8]:
+      - generic [ref=e10]: Offline baked dataset
+      - generic [ref=e12]: Copay dependency map
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Supply chain intelligence
+        - heading [level=1] [ref=e17]:
+          - text: See the
+          - emphasis [ref=e18]: ripple
+          - text: before it reaches production.
+        - paragraph [ref=e19]: Model how a single compromised dependency propagates through a real package topology—and identify the one fix that cuts its structural reach.
+      - generic [ref=e20]:
+        - generic [ref=e21]: Selected exposure
+        - strong [ref=e22]: event-stream
+        - generic [ref=e23]: "Blast radius: 7 packages"
+    - region "Scenario controls" [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]: 1 · Choose exposure
+        - strong [ref=e27]: Run a contained what-if analysis
+      - generic [ref=e28]:
+        - generic [ref=e29]: Compromised package
+        - combobox "Compromised package" [ref=e30]:
+          - option "event-stream · 3.3.6 · CVSS 9.8" [selected]
+      - button "Simulate compromise" [ref=e31] [cursor=pointer]:
+        - generic [aria-hidden] [ref=e33]: →
+      - button "Find mitigation" [ref=e34] [cursor=pointer]:
+        - generic [aria-hidden] [ref=e36]: ↗
+      - paragraph [ref=e37]: Simulation complete. Compare the patch result when ready.
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: Structural hotspots
+            - strong [ref=e43]: "3"
+            - generic [ref=e44]: nodes with radius ≥ 2
+          - generic [ref=e45]:
+            - generic [ref=e46]: Highest reach
+            - strong [ref=e47]: "7"
+            - generic [ref=e48]: downstream packages
+          - generic [ref=e49]:
+            - generic [ref=e50]: Graph state
+            - strong [ref=e51]: Active
+            - generic [ref=e52]: scenario in view
+        - region "Dependency impact graph" [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]: Live topology
+              - heading "Dependency blast path" [level=2] [ref=e57]
+            - generic [ref=e58]: 13 packages mapped
+          - generic "Graph legend" [ref=e61]:
+            - generic [ref=e62]: Compromised
+            - generic [ref=e64]: Affected
+            - generic [ref=e66]: Unaffected
+          - paragraph [ref=e71]: Nodes grow with computed risk. Click a node to inspect its structural role; colors always include text labels and tooltips.
+      - complementary "Scenario analysis" [ref=e72]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - generic [ref=e89]: Compromise scenario
+                - heading "CVE-2018-1000861 / GHSA-mh6q-v4mp-2cc7" [level=2] [ref=e90]
+              - generic [ref=e91]: Active
+            - paragraph [ref=e93]: event-stream version 3.3.6 was published with a malicious dependency, flatmap-stream, that targeted the Copay wallet application. The malicious package could steal cryptocurrency wallet credentials and private keys from affected builds.
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: Downstream reach
+                - strong [ref=e97]: "7"
+                - generic [ref=e98]: packages exposed
+              - generic [ref=e99]:
+                - generic [ref=e100]: CVSS severity
+                - strong [ref=e101]: 9.8/10
+                - generic [ref=e102]: baked advisory
+          - generic [ref=e103]:
+            - generic [ref=e104]: Why it matters
+            - paragraph [ref=e105]: "event-stream is simulated as compromised under CVE-2018-1000861 / GHSA-mh6q-v4mp-2cc7 (CVSS 9.8/10). The hop-decay rule reaches 7 downstream packages, with each risk score equal to downstream blast radius × 0.98 normalized severity × 1.0, 0.5, or 0.25 by hop. This separates raw vulnerability severity from structural criticality: packages with more reachable dependents create the larger ripple risk."
+            - generic [ref=e106]:
+              - generic [ref=e107]: Traceable formula
+              - code [ref=e108]: risk = blast radius × severity × hop decay
+  - contentinfo [ref=e82]:
+    - generic [ref=e83]: Risk is structural reach × advisory severity × hop decay.
+    - generic [ref=e84]: Offline demo · No runtime network calls
