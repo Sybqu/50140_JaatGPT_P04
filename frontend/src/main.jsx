@@ -1,153 +1,53 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react'
 import ForceGraph2D from 'react-force-graph-2d'
 import './styles.css'
 
-const API = import.meta.env.VITE_API_URL || ''
-
-const enter = {
-  hidden: { opacity: 0, y: 14 },
-  visible: index => ({ opacity: 1, y: 0, transition: { duration: 0.36, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] } }),
-}
-
-function format(value, digits = 2) {
-  return Number(value || 0).toFixed(digits)
-}
-
-function StatusDot({ tone = 'blue' }) {
-  return <span className={`status-dot status-dot--${tone}`} aria-hidden="true" />
-}
+const API = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || ''
+const format = (value, digits = 1) => Number(value || 0).toFixed(digits)
 
 function MetricCard({ label, value, detail, tone = 'blue' }) {
-  return <div className={`metric-card metric-card--${tone}`}>
-    <span className="metric-card__label">{label}</span>
-    <strong className="metric-card__value">{value}</strong>
-    <span className="metric-card__detail">{detail}</span>
-  </div>
+  return <div className={`metric-card metric-card--${tone}`}><span className="metric-card__label">{label}</span><strong className="metric-card__value">{value}</strong><span className="metric-card__detail">{detail}</span></div>
 }
 
-function GraphPanel({ graph, graphLoading, onNodeClick }) {
-  const paintNode = (node, context, globalScale) => {
-    const radius = 5 + Math.min(18, Math.sqrt(node.risk || 0) * 4)
-    const color = node.compromised ? '#ff5d6c' : node.affected ? '#ffb454' : '#79b8ff'
-    context.beginPath()
-    context.arc(node.x, node.y, radius, 0, 2 * Math.PI)
-    context.fillStyle = color
-    context.shadowColor = color
-    context.shadowBlur = node.compromised ? 18 : node.affected ? 10 : 4
-    context.fill()
-    context.shadowBlur = 0
-    context.strokeStyle = '#eaf4ff'
-    context.lineWidth = 1.25 / globalScale
-    context.stroke()
-    if (globalScale > 0.72) {
-      context.font = `${11 / globalScale}px ui-sans-serif, system-ui, sans-serif`
-      context.fillStyle = '#dce9f9'
-      context.textAlign = 'center'
-      context.fillText(node.name, node.x, node.y + radius + 14 / globalScale)
-    }
+function GraphPanel({ graph, loading }) {
+  const paintNode = (node, context, scale) => {
+    const typeColors = { package: '#79b8ff', service: '#65d79b', application: '#c98cff' }
+    const color = node.compromised ? '#ff5d6c' : node.affected ? '#ffb454' : typeColors[node.type] || '#79b8ff'
+    const radius = 5 + Math.min(14, Math.sqrt(node.risk || node.score || 0) * 4)
+    context.beginPath(); context.arc(node.x, node.y, radius, 0, 2 * Math.PI); context.fillStyle = color; context.fill(); context.strokeStyle = '#eaf4ff'; context.lineWidth = 1 / scale; context.stroke()
+    if (scale > .75) { context.font = `${11 / scale}px system-ui`; context.fillStyle = '#dce9f9'; context.textAlign = 'center'; context.fillText(node.name, node.x, node.y + radius + 14 / scale) }
   }
-
-  return <section className="graph-panel panel" aria-label="Dependency impact graph">
-    <div className="panel-heading">
-      <div><span className="eyebrow">Live topology</span><h2>Dependency blast path</h2></div>
-      <span className="topology-status"><StatusDot tone={graphLoading ? 'amber' : 'green'} />{graphLoading ? 'Refreshing graph' : `${graph.nodes.length} packages mapped`}</span>
-    </div>
-    <div className="graph-stage">
-      <div className="graph-grid" aria-hidden="true" />
-      <div className="graph-legend" aria-label="Graph legend"><span><i className="legend-dot legend-dot--red" />Compromised</span><span><i className="legend-dot legend-dot--amber" />Affected</span><span><i className="legend-dot legend-dot--blue" />Unaffected</span></div>
-      {graphLoading ? <div className="graph-loading" role="status"><span className="pulse-ring" /><span>Mapping dependency topology…</span></div> : <ForceGraph2D graphData={graph} nodeCanvasObject={paintNode} onNodeClick={onNodeClick} nodeLabel={node => `<strong>${node.name}@${node.version}</strong><br/>Risk: ${format(node.risk)}<br/>Blast radius: ${node.blast_radius}<br/>Betweenness: ${format(node.betweenness, 3)}`} linkColor={link => link.source?.compromised ? '#ff7582' : link.source?.affected ? '#d89d55' : '#355374'} linkWidth={link => link.source?.compromised ? 2.4 : 1.1} linkDirectionalArrowLength={4} linkDirectionalArrowRelPos={1} cooldownTicks={90} />}
-    </div>
-    <p className="graph-caption">Nodes grow with computed risk. Click a node to inspect its structural role; colors always include text labels and tooltips.</p>
-  </section>
+  return <section className="graph-panel panel"><div className="panel-heading"><div><span className="eyebrow">Typed digital twin</span><h2>Dependency blast path</h2></div><span className="topology-status">{graph.nodes.length} nodes mapped</span></div><div className="graph-stage">{loading ? <div className="graph-loading">Loading offline twin…</div> : <ForceGraph2D graphData={graph} nodeCanvasObject={paintNode} nodeLabel={node => `${node.name} · ${node.type} · affected ${(node.affected_probability * 100).toFixed(0)}%`} linkDirectionalArrowLength={4} linkColor={() => '#355374'} cooldownTicks={70} />}</div><p className="graph-caption">Red: compromised · amber: affected · blue: package · green: service · purple: application.</p></section>
 }
 
-function InsightRail({ scenario, mitigation, error }) {
-  return <aside className="insight-rail" aria-label="Scenario analysis">
-    <AnimatePresence mode="wait">
-      {error ? <motion.section key="error" className="panel error-panel" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}><span className="eyebrow">Connection issue</span><h2>Analysis unavailable</h2><p>{error}</p></motion.section> : scenario ? <motion.div key="scenario" className="insight-stack" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <section className="panel scenario-panel"><div className="panel-heading"><div><span className="eyebrow">Compromise scenario</span><h2>{scenario.advisory.id}</h2></div><span className="risk-chip"><StatusDot tone="red" />Active</span></div><p className="advisory-copy">{scenario.advisory.text}</p><div className="metric-grid"><MetricCard label="Downstream reach" value={scenario.simulation.affected.length - 1} detail="packages exposed" tone="amber" /><MetricCard label="CVSS severity" value={`${format(scenario.advisory.cvss, 1)}/10`} detail="baked advisory" tone="red" /></div></section>
-        <section className="panel explanation-panel"><span className="eyebrow">Why it matters</span><p>{scenario.explanation}</p><div className="formula"><span>Traceable formula</span><code>risk = blast radius × severity × hop decay</code></div></section>
-        {mitigation && <MitigationPanel mitigation={mitigation} />}
-      </motion.div> : <motion.section key="empty" className="panel empty-insight" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: 'easeOut' }}><div className="empty-insight__icon" aria-hidden="true">↗</div><span className="eyebrow">Ready to model</span><h2>Start a compromise scenario</h2><p>Choose the baked vulnerable package, run the simulation, then compare the single-fix mitigation against its current blast radius.</p><ol><li>Simulate the advisory</li><li>Inspect the propagation path</li><li>Patch and compare the reduction</li></ol></motion.section>}
-    </AnimatePresence>
-  </aside>
+function CriticalityPanel({ ranking }) {
+  return <section className="panel criticality-panel"><span className="eyebrow">Independent of CVE severity</span><h2>Top critical nodes</h2>{ranking.slice(0, 5).map((item, index) => <div className="rank-row" key={item.id}><strong>#{index + 1}</strong><div><b>{item.name}</b><small>{item.type} · CVSS {format(item.severity * 10)}</small></div><span>{format(item.score, 2)}<small>b {format(item.breakdown.betweenness, 2)} · d {format(item.breakdown.dependents_normalized, 2)}</small></span></div>)}</section>
 }
 
-function MitigationPanel({ mitigation }) {
-  return <section className="panel mitigation-panel"><div className="panel-heading"><div><span className="eyebrow">Single-fix recommendation</span><h2>Patch impact</h2></div><span className="success-chip"><StatusDot tone="green" />Path contained</span></div><div className="blast-comparison"><div><span>Before</span><strong>{mitigation.mitigation.before_blast_radius}</strong><small>reachable packages</small></div><span className="comparison-arrow" aria-hidden="true">→</span><div><span>After</span><strong>{mitigation.mitigation.after_blast_radius}</strong><small>reachable packages</small></div></div><p className="reduction-summary">{mitigation.mitigation.affected_set_delta.length} packages are removed from the simulated path.</p><div className="reduction-list"><span className="eyebrow">Largest risk reductions</span>{mitigation.mitigation.top_reductions.map(item => <div className="reduction-row" key={item.id}><span>{item.id.split('@')[0]}</span><strong>−{format(item.risk_reduction)}</strong></div>)}</div></section>
+function ScenarioPanel({ scenario }) {
+  if (!scenario) return <section className="panel empty-insight"><span className="eyebrow">Ready to model</span><h2>Run a compromise scenario</h2><p>Choose a package to sample edge-by-edge propagation through the typed offline twin.</p></section>
+  const simulation = scenario.simulation
+  return <><section className="panel scenario-panel"><span className="eyebrow">Monte Carlo outcome</span><h2>{scenario.advisory.id}</h2><p className="advisory-copy">{scenario.advisory.text}</p><div className="metric-grid"><MetricCard label="Median" value={format(simulation.median_affected, 0)} detail="affected nodes" tone="amber"/><MetricCard label="P90" value={format(simulation.p90_affected, 0)} detail="affected nodes" tone="amber"/><MetricCard label="Worst case" value={simulation.worst_case_affected} detail={`${simulation.trials} trials`} tone="red"/><MetricCard label="CVSS" value={`${format(scenario.advisory.cvss)}/10`} detail="baked advisory" tone="red"/></div></section><section className="panel explanation-panel"><span className="eyebrow">Traceable explanation</span><p>{scenario.explanation}</p></section></>
+}
+
+function MitigationPanel({ mitigation, lambda, setLambda }) {
+  if (!mitigation) return null
+  const candidates = [...mitigation.mitigation.candidates].map(item => ({ ...item, score: item.risk_reduction - lambda * item.cost })).sort((a, b) => b.score - a.score)
+  const top = candidates[0]
+  const sim = mitigation.mitigation.before
+  const explanation = `${top.label} is ranked #1 at λ=${format(lambda, 2)} with net score ${format(top.score, 2)} (reduction ${format(top.risk_reduction, 2)} nodes, illustrative cost ${format(top.cost, 2)}). It shifts median affected from ${format(sim.median_affected, 0)} to ${format(top.after.median_affected, 0)}, with worst-case ${sim.worst_case_affected} to ${top.after.worst_case_affected}. Comparison derived from ${sim.trials} Monte Carlo trials.`
+  return <section className="panel mitigation-panel"><span className="eyebrow">Cost / risk tradeoff</span><h2>Mitigation candidates</h2><label className="slider-label">λ cost weight: {format(lambda, 1)}<input type="range" min="0" max="2" step="0.1" value={lambda} onChange={event => setLambda(Number(event.target.value))}/></label><p className="reduction-summary">Score = expected node reduction − λ × illustrative cost. Slider reranks existing Monte Carlo results.</p><div className="panel explanation-panel" style={{ margin: '10px 0', padding: '10px 12px', background: 'rgba(16,31,52,0.85)' }}><span className="eyebrow" style={{ color: '#79b8ff' }}>Tradeoff explanation (λ={format(lambda, 2)})</span><p style={{ margin: '4px 0 0', fontSize: '0.86rem', lineHeight: '1.4' }}>{explanation}</p></div>{candidates.slice(0, 5).map((item, index) => <div className="reduction-row" key={item.label}><span><b>#{index + 1} {item.label}</b><small>median {format(item.after.median_affected, 0)} · worst {item.after.worst_case_affected} · cost {format(item.cost, 2)}</small></span><strong>{format(item.score, 2)}</strong></div>)}</section>
 }
 
 function App() {
-  const shouldReduceMotion = useReducedMotion()
-  const [graph, setGraph] = useState({ nodes: [], links: [] })
-  const [selected, setSelected] = useState('event-stream@3.3.6')
-  const [scenario, setScenario] = useState(null)
-  const [mitigation, setMitigation] = useState(null)
-  const [graphLoading, setGraphLoading] = useState(true)
-  const [actionLoading, setActionLoading] = useState(false)
-  const [error, setError] = useState('')
-  const candidates = useMemo(() => graph.nodes.filter(node => node.name === 'event-stream' || node.severity > 0), [graph])
-  const current = graph.nodes.find(node => node.id === selected)
-
-  useEffect(() => {
-    async function loadGraph() {
-      try {
-        const response = await fetch(`${API}/api/graph`)
-        if (!response.ok) throw new Error('The API did not return the baked graph.')
-        setGraph(await response.json())
-      } catch (requestError) {
-        setError('Could not reach the analyzer API. Start the FastAPI server on port 8000 and refresh this page.')
-      } finally {
-        setGraphLoading(false)
-      }
-    }
-    loadGraph()
-  }, [])
-
-  async function runScenario(endpoint) {
-    setActionLoading(true)
-    setError('')
-    try {
-      const response = await fetch(`${API}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ node_id: selected }) })
-      if (!response.ok) throw new Error('The analysis request failed.')
-      return await response.json()
-    } catch (requestError) {
-      setError('Analysis could not complete. Confirm the FastAPI server is running, then try again.')
-      return null
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  async function simulate() {
-    const data = await runScenario('/api/simulate')
-    if (!data) return
-    setGraph({ nodes: data.nodes, links: data.links })
-    setScenario(data)
-    setMitigation(null)
-  }
-
-  async function findMitigation() {
-    const data = await runScenario('/api/mitigate')
-    if (data) setMitigation(data)
-  }
-
-  function inspectNode(node) {
-    if (node.name === 'event-stream' || node.severity > 0) setSelected(node.id)
-  }
-
-  return <MotionConfig reducedMotion="user"><div className="app-shell">
-    <div className="ambient ambient--one" aria-hidden="true" /><div className="ambient ambient--two" aria-hidden="true" />
-    <motion.header className="topbar" custom={0} variants={enter} initial="hidden" animate="visible"><a className="brand" href="#top" aria-label="Ripple Risk home"><span className="brand-mark">R</span><span>RIPPLE<span>RISK</span></span></a><div className="topbar-status"><StatusDot tone="green" /><span>Offline baked dataset</span><span className="topbar-divider" /><span>Copay dependency map</span></div></motion.header>
-    <main id="top" className="app-content">
-      <motion.section className="hero" custom={1} variants={enter} initial="hidden" animate="visible"><div><span className="eyebrow">Supply chain intelligence</span><h1>See the <em>ripple</em> before it reaches production.</h1><p>Model how a single compromised dependency propagates through a real package topology—and identify the one fix that cuts its structural reach.</p></div><div className="hero-stat"><span>Selected exposure</span><strong>{current ? current.name : 'event-stream'}</strong><small>{current ? `Blast radius: ${current.blast_radius} packages` : 'Loading topology…'}</small></div></motion.section>
-      <motion.section className="control-deck panel" custom={2} variants={enter} initial="hidden" animate="visible" aria-label="Scenario controls"><div className="control-deck__title"><span className="eyebrow">1 · Choose exposure</span><strong>Run a contained what-if analysis</strong></div><label className="select-field"><span>Compromised package</span><select value={selected} onChange={event => setSelected(event.target.value)} disabled={graphLoading}>{candidates.map(node => <option key={node.id} value={node.id}>{node.name} · {node.version} · CVSS {format(node.severity * 10, 1)}</option>)}</select></label><motion.button className="button button--primary" onClick={simulate} disabled={actionLoading || graphLoading || !selected} whileHover={shouldReduceMotion ? {} : { y: -2 }} whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}><span>{actionLoading ? 'Analyzing path…' : 'Simulate compromise'}</span><span aria-hidden="true">→</span></motion.button><motion.button className="button button--secondary" onClick={findMitigation} disabled={actionLoading || !scenario} whileHover={shouldReduceMotion ? {} : { y: -2 }} whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}><span>{actionLoading ? 'Comparing…' : 'Find mitigation'}</span><span aria-hidden="true">↗</span></motion.button><p className="control-help" aria-live="polite">{actionLoading ? 'Calculating traceable risk factors…' : scenario ? 'Simulation complete. Compare the patch result when ready.' : 'The formula and propagation factors remain inspectable at every step.'}</p></motion.section>
-      <motion.section className="dashboard-grid" custom={3} variants={enter} initial="hidden" animate="visible"><div className="primary-column"><div className="metric-strip"><MetricCard label="Structural hotspots" value={graph.nodes.filter(node => node.blast_radius >= 2).length || '—'} detail="nodes with radius ≥ 2" /><MetricCard label="Highest reach" value={Math.max(0, ...graph.nodes.map(node => node.blast_radius)) || '—'} detail="downstream packages" tone="amber" /><MetricCard label="Graph state" value={scenario ? 'Active' : 'Baseline'} detail={scenario ? 'scenario in view' : 'no compromise selected'} tone={scenario ? 'red' : 'blue'} /></div><GraphPanel graph={graph} graphLoading={graphLoading} onNodeClick={inspectNode} /></div><InsightRail scenario={scenario} mitigation={mitigation} error={error} /></motion.section>
-    </main>
-    <footer className="footer"><span>Risk is structural reach × advisory severity × hop decay.</span><span>Offline demo · No runtime network calls</span></footer>
-  </div></MotionConfig>
+  const [graph, setGraph] = useState({ nodes: [], links: [] }); const [ranking, setRanking] = useState([]); const [selected, setSelected] = useState('event-stream@3.3.6'); const [scenario, setScenario] = useState(null); const [mitigation, setMitigation] = useState(null); const [lambda, setLambda] = useState(.5); const [loading, setLoading] = useState(true); const [working, setWorking] = useState(false); const [error, setError] = useState('')
+  const candidates = useMemo(() => graph.nodes.filter(node => node.type === 'package'), [graph])
+  useEffect(() => { Promise.all([fetch(`${API}/api/graph`).then(response => response.json()), fetch(`${API}/api/criticality`).then(response => response.json())]).then(([twin, criticality]) => { setGraph(twin); setRanking(criticality.ranking); }).catch(() => setError('Could not reach the FastAPI server on port 8000.')).finally(() => setLoading(false)) }, [])
+  async function request(endpoint, body) { setWorking(true); setError(''); try { const response = await fetch(`${API}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); if (!response.ok) throw new Error(); return await response.json() } catch { setError('Analysis failed. Confirm the API is running and retry.'); return null } finally { setWorking(false) } }
+  async function simulate() { const data = await request('/api/simulate', { node_id: selected, trials: 800 }); if (data) { setGraph({ nodes: data.nodes, links: data.links }); setScenario(data); setMitigation(null) } }
+  async function findMitigation() { const data = await request('/api/mitigate', { node_id: selected, trials: 600, actions: [{ node_id: selected, action: 'PATCH' }], lambda_value: lambda }); if (data) setMitigation(data) }
+  return <div className="app-shell"><header className="topbar"><a className="brand" href="#top">RIPPLE<span>RISK</span></a><div className="topbar-status">Offline typed twin · no runtime network calls</div></header><main id="top" className="app-content"><section className="hero"><div><span className="eyebrow">Supply-chain intelligence</span><h1>See the <em>ripple</em> before it reaches production.</h1><p>Monte Carlo propagation over a typed Copay dependency twin with transparent structural and mitigation rankings.</p></div></section><section className="control-deck panel"><div className="control-deck__title"><span className="eyebrow">Compromise scenario</span><strong>Sample 800 propagation trials</strong></div><label className="select-field"><span>Compromised package</span><select value={selected} onChange={event => setSelected(event.target.value)} disabled={loading}>{candidates.map(node => <option value={node.id} key={node.id}>{node.name} · {node.version}</option>)}</select></label><button className="button button--primary" onClick={simulate} disabled={working || loading}> {working ? 'Sampling…' : 'Simulate compromise'} </button><button className="button button--secondary" onClick={findMitigation} disabled={working || !scenario}>Find mitigation</button></section>{error && <p className="panel error-panel">{error}</p>}<section className="dashboard-grid"><div className="primary-column"><div className="metric-strip"><MetricCard label="Twin nodes" value={graph.nodes.length || '—'} detail="packages, services, apps"/><MetricCard label="Highest reach" value={Math.max(0, ...graph.nodes.map(node => node.blast_radius || 0)) || '—'} detail="downstream nodes" tone="amber"/><MetricCard label="Graph state" value={scenario ? 'Active' : 'Baseline'} detail="Monte Carlo model" tone={scenario ? 'red' : 'blue'}/></div><GraphPanel graph={graph} loading={loading}/></div><aside className="insight-rail"><ScenarioPanel scenario={scenario}/><CriticalityPanel ranking={ranking}/><MitigationPanel mitigation={mitigation} lambda={lambda} setLambda={setLambda}/></aside></section></main><footer className="footer">Offline baked dataset · no LLM runtime path · every score is traceable</footer></div>
 }
 
 createRoot(document.getElementById('root')).render(<App />)

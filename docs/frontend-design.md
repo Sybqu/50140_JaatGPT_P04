@@ -43,26 +43,24 @@ The interface uses a deep midnight base, a fine technical grid, luminous blue st
 - `InsightRail`: advisory, formula, explanation, mitigation result, and rank reductions.
 - `EmptyInsight` and `LoadingState`: explicit pre-simulation and request states.
 
-## Interaction and animation strategy
+## Interaction and styling strategy
 
-- Page and panels: Motion staggered opacity/vertical entry on initial load; 220–360ms ease-out. Purpose: establish hierarchy without delaying use.
-- Buttons: Motion hover lift of 1–2px and press scale of 0.98; 120–180ms. Purpose: direct, tactile feedback.
-- Scenario insight: `AnimatePresence` opacity/vertical transition when results replace the empty state; 180–240ms. Purpose: preserve continuity after simulation.
-- Metric numbers: short opacity/position reveal only when simulation data changes. Purpose: mark changed state without decorative counting.
-- Cards: CSS transform/border-color transition on hover/focus. Purpose: make clickable/interactive regions legible while avoiding unnecessary JavaScript animation.
-- Graph: no continuous decorative animation beyond the force simulation. Purpose: graph movement already carries information.
-- Reduced motion: Motion uses `useReducedMotion`; CSS disables nonessential transitions and animation. No motion is required to understand state.
+- Page and panels: Clean flex/grid layout with CSS gradients, soft borders (`rgba(156,196,255,.16)`), and backdrop blur (`backdrop-filter: blur(18px)`).
+- Buttons: CSS transitions on hover (`box-shadow .18s ease`) and native `:focus-visible` outlines for tactile feedback.
+- Interactive controls: Native range slider and select elements styled with high-contrast accent highlights.
+- Graph: HTML5 Canvas rendering via `react-force-graph-2d` with custom node color mapping and directional links; graph topology changes convey structural state without extraneous decorative animations.
+- Cards: Hover border-color and elevation transitions using hardware-accelerated CSS properties.
+- Reduced motion: Native `@media (prefers-reduced-motion: reduce)` disables all CSS transitions and animations.
 
 ## Accessibility and performance
 
 - All controls use visible keyboard focus and native form semantics.
-- Risk color is paired with labels and icons/text, not color alone.
-- Request states use `aria-live="polite"`; disabled controls retain an explanatory label.
-- Motion is limited to `opacity` and `transform`; no scroll parallax, permanent looping, or layout-thrashing animation.
+- Risk color is paired with labels and text (e.g. badges, metrics), not color alone.
+- Lightweight asset footprint: Zero external UI or animation libraries (React + `react-force-graph-2d` only, adhering strictly to AGENTS.md).
+- Transitions are limited to `opacity`, `color`, and `box-shadow`; no layout-thrashing animations or scroll parallax.
 
-## Research decisions
+## Design and architectural decisions
 
-- Motion supplies React-aware enter/exit, hover/press, and reduced-motion behavior.
-- React Bits informed the restrained layered/background-card aesthetic; no third-party component is copied or added.
-- Anime.js was not selected: the product has no complex timeline or SVG sequence requiring a second animation runtime.
-- Transitions.dev informed the use of short text/state swaps, panel reveals, and number emphasis; modal/page effects are intentionally omitted because they would not help the core workflow.
+- No extraneous animation runtime: Framer Motion / Motion was removed to keep bundle size minimal, eliminate runtime overhead, and comply with the single frontend dependency constraint.
+- Pure React + CSS: Component state transitions (simulation, mitigation, slider re-ranking) update reactively and instantaneously.
+- Dark command-center palette: High-contrast midnight blue base (`#07111f`), luminous cyan/blue primary accents (`#41d7d1`, `#79b8ff`), and reserved amber/red risk indicators (`#ffb454`, `#ff5d6c`).
