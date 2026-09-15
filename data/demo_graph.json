@@ -1,48 +1,28 @@
 {
-  "source": {
-    "repository": "https://github.com/bitpay/copay",
-    "manifest_path": "package.json",
-    "ecosystem": "npm",
-    "fetched_at": "2026-09-15",
-    "note": "Offline demo fixture derived from the repository manifest and its two-level npm dependency tree; vulnerability lookup results are baked for judging."
-  },
-  "advisories": {
-    "event-stream": {
-      "id": "CVE-2018-1000861 / GHSA-mh6q-v4mp-2cc7",
-      "cvss": 9.8,
-      "text": "event-stream version 3.3.6 was published with a malicious dependency, flatmap-stream, that targeted the Copay wallet application. The malicious package could steal cryptocurrency wallet credentials and private keys from affected builds."
-    }
-  },
+  "source": {"repository":"https://github.com/bitpay/copay","manifest_path":"package.json","ecosystem":"npm","fetched_at":"2026-09-15","note":"Offline Copay/event-stream fixture. Dates and maintainer scores are plausible synthetic demo inputs."},
+  "advisories": {"event-stream":{"id":"CVE-2018-1000861 / GHSA-mh6q-v4mp-2cc7","cvss":9.8,"text":"event-stream 3.3.6 included malicious flatmap-stream code targeting Copay wallet builds and credentials."}},
   "nodes": [
-    {"id": "event-stream@3.3.6", "name": "event-stream", "version": "3.3.6", "ecosystem": "npm", "severity": 0.98, "cve_match": true},
-    {"id": "flatmap-stream@0.1.1", "name": "flatmap-stream", "version": "0.1.1", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "through@2.3.8", "name": "through", "version": "2.3.8", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "split@1.0.1", "name": "split", "version": "1.0.1", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "duplexer@0.1.2", "name": "duplexer", "version": "0.1.2", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "map-stream@0.1.0", "name": "map-stream", "version": "0.1.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "stream-combiner@0.0.4", "name": "stream-combiner", "version": "0.0.4", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "copay@8.0.0", "name": "copay", "version": "8.0.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "rc-util@5.39.1", "name": "rc-util", "version": "5.39.1", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "rc-field-form@1.41.0", "name": "rc-field-form", "version": "1.41.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "rc-table@7.37.0", "name": "rc-table", "version": "7.37.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "rc-picker@4.0.0", "name": "rc-picker", "version": "4.0.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false},
-    {"id": "@ant-design-icons/react@5.3.0", "name": "@ant-design-icons/react", "version": "5.3.0", "ecosystem": "npm", "severity": 0.0, "cve_match": false}
+    {"id":"event-stream@3.3.6","name":"event-stream","version":"3.3.6","type":"package","ecosystem":"npm","severity":0.98,"cve_match":true,"is_direct":false,"last_updated":"2018-09-09","maintainer_activity_score":0.05},
+    {"id":"flatmap-stream@0.1.1","name":"flatmap-stream","version":"0.1.1","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2018-09-08","maintainer_activity_score":0.02},
+    {"id":"through@2.3.8","name":"through","version":"2.3.8","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2018-05-20","maintainer_activity_score":0.35},
+    {"id":"split@1.0.1","name":"split","version":"1.0.1","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2017-01-16","maintainer_activity_score":0.32},
+    {"id":"duplexer@0.1.2","name":"duplexer","version":"0.1.2","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2014-09-12","maintainer_activity_score":0.18},
+    {"id":"map-stream@0.1.0","name":"map-stream","version":"0.1.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2014-03-12","maintainer_activity_score":0.20},
+    {"id":"stream-combiner@0.0.4","name":"stream-combiner","version":"0.0.4","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2016-11-10","maintainer_activity_score":0.28},
+    {"id":"copay@8.0.0","name":"copay","version":"8.0.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":true,"last_updated":"2020-05-14","maintainer_activity_score":0.68},
+    {"id":"rc-util@5.39.1","name":"rc-util","version":"5.39.1","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2024-01-08","maintainer_activity_score":0.82},
+    {"id":"rc-field-form@1.41.0","name":"rc-field-form","version":"1.41.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2024-02-03","maintainer_activity_score":0.86},
+    {"id":"rc-table@7.37.0","name":"rc-table","version":"7.37.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2024-01-19","maintainer_activity_score":0.81},
+    {"id":"rc-picker@4.0.0","name":"rc-picker","version":"4.0.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2024-01-25","maintainer_activity_score":0.80},
+    {"id":"@ant-design-icons/react@5.3.0","name":"@ant-design-icons/react","version":"5.3.0","type":"package","ecosystem":"npm","severity":0,"cve_match":false,"is_direct":false,"last_updated":"2024-02-15","maintainer_activity_score":0.88},
+    {"id":"copay-wallet-service","name":"Copay wallet service","version":"2026.09","type":"service","severity":0,"criticality_tier":"critical","redundancy":false,"environment":"prod"},
+    {"id":"copay-mobile-app","name":"Copay mobile app","version":"8.0.0","type":"application","severity":0,"criticality_tier":"high","redundancy":false,"environment":"prod"},
+    {"id":"copay-admin-console","name":"Copay admin console","version":"2026.09","type":"application","severity":0,"criticality_tier":"medium","redundancy":true,"environment":"staging"}
   ],
   "links": [
-    {"source": "event-stream@3.3.6", "target": "flatmap-stream@0.1.1", "weight": 1.0},
-    {"source": "event-stream@3.3.6", "target": "through@2.3.8", "weight": 1.0},
-    {"source": "event-stream@3.3.6", "target": "split@1.0.1", "weight": 1.0},
-    {"source": "event-stream@3.3.6", "target": "duplexer@0.1.2", "weight": 1.0},
-    {"source": "flatmap-stream@0.1.1", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "through@2.3.8", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "split@1.0.1", "target": "rc-util@5.39.1", "weight": 1.0},
-    {"source": "duplexer@0.1.2", "target": "map-stream@0.1.0", "weight": 1.0},
-    {"source": "map-stream@0.1.0", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "stream-combiner@0.0.4", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "rc-util@5.39.1", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "rc-field-form@1.41.0", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "rc-table@7.37.0", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "rc-picker@4.0.0", "target": "copay@8.0.0", "weight": 1.0},
-    {"source": "@ant-design-icons/react@5.3.0", "target": "copay@8.0.0", "weight": 1.0}
+    {"source":"event-stream@3.3.6","target":"flatmap-stream@0.1.1","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.88},{"source":"event-stream@3.3.6","target":"through@2.3.8","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.76},{"source":"event-stream@3.3.6","target":"split@1.0.1","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.72},{"source":"event-stream@3.3.6","target":"duplexer@0.1.2","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.7},
+    {"source":"flatmap-stream@0.1.1","target":"copay-wallet-service","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.92},{"source":"through@2.3.8","target":"copay-mobile-app","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.84},{"source":"split@1.0.1","target":"rc-util@5.39.1","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.66},{"source":"duplexer@0.1.2","target":"map-stream@0.1.0","weight":1,"type":"depends_on","dependency_scope":"runtime","base_probability":0.7},{"source":"map-stream@0.1.0","target":"copay-wallet-service","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.89},
+    {"source":"stream-combiner@0.0.4","target":"copay-wallet-service","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.75},{"source":"rc-util@5.39.1","target":"copay-mobile-app","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.77},{"source":"rc-field-form@1.41.0","target":"copay-admin-console","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.6},{"source":"rc-table@7.37.0","target":"copay-admin-console","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.6},{"source":"rc-picker@4.0.0","target":"copay-admin-console","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.6},{"source":"@ant-design-icons/react@5.3.0","target":"copay-mobile-app","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.6},
+    {"source":"copay@8.0.0","target":"copay-wallet-service","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.9},{"source":"copay@8.0.0","target":"copay-mobile-app","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.85},{"source":"copay-wallet-service","target":"copay-mobile-app","weight":1,"type":"deployed_in","dependency_scope":"runtime","base_probability":0.9},{"source":"copay-wallet-service","target":"copay-admin-console","weight":1,"type":"used_by","dependency_scope":"runtime","base_probability":0.65}
   ]
 }
