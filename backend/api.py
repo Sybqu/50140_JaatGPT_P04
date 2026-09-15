@@ -30,6 +30,7 @@ class Action(BaseModel):
 class MitigationRequest(SimulationRequest):
     """Validate a one- or two-action mitigation search request."""
     actions: list[Action] = []
+    lambda_value: float = 0.0
 
 
 def advisory_for(node_id: str) -> dict:
@@ -70,4 +71,4 @@ def run_mitigation(request: MitigationRequest) -> dict:
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     advisory = advisory_for(request.node_id)
-    return {"mitigation": result, "advisory": advisory, "explanation": explain(GRAPH.nodes[request.node_id]["name"], advisory, result["before"], result)}
+    return {"mitigation": result, "advisory": advisory, "explanation": explain(GRAPH.nodes[request.node_id]["name"], advisory, result["before"], result, request.lambda_value)}

@@ -21,12 +21,16 @@ def apply_actions(graph: nx.DiGraph, actions: list[dict]) -> nx.DiGraph:
     hypothetical = graph.copy()
     for item in actions:
         node_id, action = item["node_id"], item["action"]
-        if action in {"PATCH", "ISOLATE"}:
+        if action == "ISOLATE":
             for _, _, attrs in hypothetical.out_edges(node_id, data=True):
                 attrs["weight"] = 0.0
+        elif action == "PATCH":
+            hypothetical.nodes[node_id]["severity"] = 0.05
+            hypothetical.nodes[node_id]["patched"] = True
         elif action == "UPGRADE":
             hypothetical.nodes[node_id]["severity"] = 0.0
             hypothetical.nodes[node_id]["maintainer_activity_score"] = 1.0
+            hypothetical.nodes[node_id]["upgraded"] = True
     return hypothetical
 
 

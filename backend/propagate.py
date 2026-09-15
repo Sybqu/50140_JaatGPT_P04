@@ -8,10 +8,15 @@ import numpy as np
 
 def edge_probability(graph: nx.DiGraph, source: str, target: str, attrs: dict) -> float:
     """Return an inspectable heuristic probability for one propagation edge."""
+    source_attrs = graph.nodes[source]
     target_attrs = graph.nodes[target]
     probability = float(attrs.get("base_probability", 0.72)) * float(attrs.get("weight", 1.0))
     if attrs.get("dependency_scope", "runtime") != "runtime":
         probability *= 0.6
+    if source_attrs.get("upgraded") or target_attrs.get("upgraded"):
+        probability *= 0.05
+    elif source_attrs.get("patched") or target_attrs.get("patched"):
+        probability *= 0.15
     probability *= 0.75 + (1 - float(target_attrs.get("maintainer_activity_score", 0.5))) * 0.25
     if target_attrs.get("redundancy"):
         probability *= 0.48
