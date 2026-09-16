@@ -40,7 +40,7 @@ def criticality_ranking(graph: nx.DiGraph) -> list[dict]:
         redundancy_bonus = 0.0 if attrs.get("redundancy", True) else 0.25
         dependent_score = attrs["dependents_count"] / max_dependents
         score = attrs["betweenness"] * 4 + dependent_score * 2 + tier * 0.5 + redundancy_bonus
-        ranked.append({"id": node_id, "name": attrs["name"], "type": attrs["type"], "severity": attrs["severity"], "score": round(score, 4), "breakdown": {"betweenness": attrs["betweenness"], "dependents_normalized": round(dependent_score, 4), "criticality_tier_weight": tier, "nonredundancy_bonus": redundancy_bonus}})
+        ranked.append({"id": node_id, "name": attrs["name"], "type": attrs["type"], "severity": attrs["severity"], "dependents_count": attrs["dependents_count"], "score": round(score, 4), "breakdown": {"betweenness": attrs["betweenness"], "dependents_normalized": round(dependent_score, 4), "criticality_tier_weight": tier, "nonredundancy_bonus": redundancy_bonus}})
     return sorted(ranked, key=lambda item: item["score"], reverse=True)
 
 

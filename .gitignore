@@ -3,3 +3,6 @@ __pycache__/
 *.py[cod]
 node_modules/
 dist/
+.playwright
+.playwright-cli
+.chrome_profile/

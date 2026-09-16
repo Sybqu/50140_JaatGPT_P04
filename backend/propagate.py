@@ -38,17 +38,32 @@ def propagate(graph: nx.DiGraph, compromised_id: str, trials: int = 800, seed: i
     active_graph = graph.copy()
     rng = random.Random(seed)
     counts, hit_counts = [], {node_id: 0 for node_id in active_graph}
-    for _ in range(trials):
+    trial_samples = []
+    for trial_idx in range(trials):
         affected, queue = {compromised_id}, [compromised_id]
+        traversed_edges = []
         while queue:
             source = queue.pop(0)
             for _, target, attrs in active_graph.out_edges(source, data=True):
-                if target not in affected and rng.random() < edge_probability(active_graph, source, target, attrs):
-                    affected.add(target)
-                    queue.append(target)
+                if target not in affected:
+                    prob = edge_probability(active_graph, source, target, attrs)
+                    roll = round(rng.random(), 4)
+                    fired = roll < prob
+                    if trial_idx < 15:
+                        traversed_edges.append({"source": source, "target": target, "p": prob, "roll": roll, "fired": fired})
+                    if fired:
+                        affected.add(target)
+                        queue.append(target)
         counts.append(len(affected) - 1)
         for node_id in affected:
             hit_counts[node_id] += 1
+        if trial_idx < 15:
+            trial_samples.append({
+                "trial": trial_idx + 1,
+                "affected_count": len(affected) - 1,
+                "affected_nodes": list(affected),
+                "traversed_edges": traversed_edges
+            })
     probabilities = {node_id: count / trials for node_id, count in hit_counts.items()}
     deterministic = nx.single_source_shortest_path_length(active_graph, compromised_id)
     severity = active_graph.nodes[compromised_id]["severity"]
@@ -58,4 +73,18 @@ def propagate(graph: nx.DiGraph, compromised_id: str, trials: int = 800, seed: i
         expected = probabilities[node_id] * severity * decay_for_hop(hop) * (1 + active_graph.nodes[node_id].get("blast_radius", 0))
         risks[node_id] = expected
         breakdown[node_id] = {"hop_distance": distance, "affected_probability": round(probabilities[node_id], 4), "expected_severity_contribution": round(expected, 4), "edge_path_rule": "base probability × maintainer activity × redundancy × edge weight"}
-    return {"trials": trials, "median_affected": float(np.median(counts)), "p90_affected": float(np.percentile(counts, 90)), "worst_case_affected": int(max(counts)), "mean_affected": round(float(np.mean(counts)), 4), "affected_probabilities": probabilities, "affected": {node_id for node_id, value in probabilities.items() if value > 0}, "risk_scores": risks, "breakdown": breakdown}
+    distribution = {k: counts.count(k) for k in range(max(counts) + 1 if counts else 1)}
+    return {
+        "trials": trials,
+        "median_affected": float(np.median(counts)),
+        "p90_affected": float(np.percentile(counts, 90)),
+        "worst_case_affected": int(max(counts)),
+        "mean_affected": round(float(np.mean(counts)), 4),
+        "affected_probabilities": probabilities,
+        "affected": [node_id for node_id, value in probabilities.items() if value > 0],
+        "risk_scores": risks,
+        "breakdown": breakdown,
+        "trial_counts": counts,
+        "distribution": distribution,
+        "trial_samples": trial_samples
+    }
