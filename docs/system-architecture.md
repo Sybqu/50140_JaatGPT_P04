@@ -375,3 +375,4 @@ function MitigationPanel({ mitigation, lambda, setLambda }) {
 - While dragging the slider, the browser does not spam the backend with network requests.
 - The pre-computed Monte Carlo distributions for each candidate are re-scored locally and re-sorted in real time.
 - The Tradeoff Explanation panel immediately re-renders the new #1 action, net score, and Monte Carlo shift.
+
