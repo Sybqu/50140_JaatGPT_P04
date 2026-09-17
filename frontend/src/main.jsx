@@ -397,7 +397,7 @@ export default function App() {
       <div className="app-header">
         <div className="brand-section">
           <div className="brand-title">
-            <span>RIPPLE RISK</span>
+            <span>MONTEX</span>
             <span className="brand-tag">/ Supply Chain Digital Twin Console</span>
           </div>
         </div>
