@@ -13,6 +13,9 @@ An offline supply-chain security digital twin that shows how **structural reach 
 
 ## Quick Start (Docker)
 
+# If does NOT work
+- Build the image again
+
 The app is fully containerized.
 
 ```bash
