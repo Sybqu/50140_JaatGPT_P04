@@ -20,7 +20,7 @@ docker compose up --build
 ```
 
 - **Frontend UI:** [http://localhost:5173](http://localhost:5173)
-- **Backend API:** [http://localhost:8000](http://localhost:8000) (interactive docs at [http://localhost:8000/docs](http://localhost:8000/docs))
+- **Backend API:** [http://localhost:8000](http://localhost:8000)
 
 Stop the containers:
 ```bash
