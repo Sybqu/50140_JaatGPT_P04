@@ -64,7 +64,7 @@ Visit [http://localhost:5173](http://localhost:5173) — the Vite dev server pro
 
 ## How It Works
 
-The system is a pipeline of small, inspectable pieces — no single black-box score. Each step's output feeds the next, and every number stays traceable back to the simulation run that produced it.
+The system is a pipeline of small, inspectable pieces. Each step's output feeds the next, and every number stays traceable back to the simulation run that produced it.
 
 ### The Digital Twin (Dependency Graph)
 A typed graph that's the structural source of truth: **Package**, **Service**, and **Application** nodes connected by typed edges (`depends_on`, `used_by`, `deployed_in`). It's read-only from the outside — a mitigation action never edits the live graph, it only produces a hypothetical modified copy for that simulation run.
@@ -97,5 +97,5 @@ Blast-radius results are turned into a cost-weighted ranking of candidate action
 ## Architecture & Tech Stack
 
 - **Backend:** Python 3.12, FastAPI, NetworkX, NumPy
-- **Frontend:** React 18, Vite, `react-force-graph-2d` (pure CSS/HTML5 canvas — no extraneous UI/animation libraries)
+- **Frontend:** React 18, Vite, `react-force-graph-2d` 
 - **Offline dataset:** baked real-world seed data (`data/demo_graph.json`) mirroring the `event-stream` incident — no runtime third-party API or LLM calls
